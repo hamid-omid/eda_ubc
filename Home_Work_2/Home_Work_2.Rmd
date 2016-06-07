@@ -1,0 +1,307 @@
+---
+title: "Stat 545 Home Work 2"
+author: "**Hamid Omid**"
+output: 
+  html_document:
+    keep_md: yes
+    variant: markdown_github
+    toc: true
+    number_sections: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo=TRUE)
+```
+
+#Introduction
+
+In this homework, we are going to play with some data from ["gapminder"](http://www.gapminder.org/) data and make many plots to get familiar with ["ggplot2"](https://en.wikipedia.org/wiki/Ggplot2). "ggplot2" is a package which is user friendly and makes our life as data geeks easier! Note that I have turned off the out-put of some chunks by using the command **"message=FALSE"** and **"warning=FALSE"**. To make it more pedagogical, I tried to bold new commands that I learned through this homework.
+
+I used the following lines of code to add a table of contents and number the sections.
+
+```{r,eval=FALSE}
+---title: "Stat 545 Home Work 2"
+author: "Hamid Omid"
+output: 
+  html_document:
+    keep_md: yes
+    toc: true
+    number_sections: true
+---
+```
+
+***
+
+#Data and Packages
+
+Let's start by installing the package that provides us with the data. 
+``` {r,message=FALSE, results="hide"}
+install.packages("gapminder",repos="http://cran.rstudio.com/")
+```
+
+We used the option "**results="hide"**" to suppress the out-put. We need some other packages as well, let me define a function to check if they are already installed if not it installs the package.
+
+```{r, Package Test Function}
+pkgTest <- function(x)
+  {
+    if (!require(x,character.only = TRUE))
+    {
+      install.packages(x,dep=TRUE)
+        if(!require(x,character.only = TRUE)) stop("Package not found")
+    }
+  }    
+```
+
+
+```{r,message=FALSE}
+
+pkgTest("ggplot2")
+pkgTest("dplyr")
+
+```
+
+"**dplyr**" is a package that is helpful in statistical analysis.
+
+
+I needed to specify the repository by typing **"repos=http<span></span>://cran.rstudio.com"** otherwise I would have received an error. The error occurs as **RStudio** is not sure which repository to use. An extra note here! By adding a URL, a hyperlink gets generated automatically. We can add `<span></span>` after "http" to avoid it.
+
+We could get data directly from a URL, for example:
+
+```{r}
+gapminder <-"http://www.stat.ubc.ca/~jenny/notOcto/STAT545A/examples/gapminder/data/gapminderDataFiveYear.txt"
+    
+gapData <- read.delim(file = gapminder)
+```
+
+We put the data in the variable "gapData".
+
+It is nice to call all of the packages that we use at the same-time. Let's call them all here.
+
+```{r,message=FALSE,warning=FALSE}
+library(gapminder)
+library(ggplot2)
+library(dplyr)
+
+```
+
+***
+
+# Exploring Gapminder Data Structure
+
+Let's start by looking at the structure of data. 
+
+```{r}
+
+str(gapData)
+class(gapData)
+mode(gapData)
+
+
+```
+
+
+"**str()**" shows us that "gapData" is a data.frame with 1704 objects and 6 variables. "**class()**" and "**mode()**" command return "data.frame" and "list" respectively. We could find the number of variables( columns) by the following command
+```{r}
+ncol(gapData)
+```
+and the number of rows( objects) could be found by
+```{r}
+nrow(gapData)
+```
+The function "**dim**" gives us both of the number of rows and columns.
+
+```{r}
+dim(gapData)
+```
+
+Let's summarize the information we got from above commands. The functions that give us the given information are mentioned at the end of each line.
+ 
+* The "gapData" **class** is a data.frame( **str(), class()**)
+* There are 1704 **observations**( **rows**) ( **str(), nrow( ), dim( )**)
+* There are 6 **variables( columns)** ( **str(), ncol( ), dim( )**)
+* The **variables( columns)** are: country, year, pop, continent, lifeExp and gdpPercap( **str(), names()**)
+* The **types of variables** are : factor, integer, number (**str()**)
+* The **number of levels** for factor variables are 5 for "continent"" and 142 for "country" (**str(), nlevels()**)
+
+Let's summarize the variables class in the following table as well. We could use "**str(gapData)**" or use "**class()**" for each individual variable.
+
+Variable | Class
+------------- | -------------
+country | factor
+year | integer 
+pop  | numeric
+continent| factor
+lifeExp| numeric
+gdpPercap| numeric
+
+We could use the following function to find the levels for factor variables.
+
+```{r}
+levels(gapData$continent)
+```
+
+***
+
+# Exploring Gapminder Data More Deeply
+
+In this section we try to have a more accurate feeling about the data by using more functions. We can use the function "**summary()**" to get some statistical feeling about each variable.
+
+```{r}
+summary(gapData)
+```
+
+Let's focus on two variables, "continent" and "lifeExp". They were more fun! 
+<br><br>
+
+***
+
+## Exploring "continent" Variable 
+
+Let's apply the "summary()" function on "continent".
+
+```{r}
+summary(gapData$continent)
+```
+It gives us the values( continents) that variable takes and the number of observations for each continent. The best plot for such a variable is a bar-graph. Let's try it!
+```{r}
+ggplot(data=gapData,aes(continent))+
+geom_bar(fill="bisque4")+
+xlab("Continent")+ylab("Number of Observations")+
+ggtitle("Number of Observations per Continent")
+
+```
+
+You can find many color codes in this [link](http://www.stat.columbia.edu/~tzheng/files/Rcolor.pdf). As before we could use the function "levels()" to get the values the variable takes.
+
+***
+
+## Exploring "lifeExp" Variable
+
+<br>
+
+Let's apply the function "summary()" on the variable of interest "lifeExp", life expectancy.
+
+```{r}
+summary(gapData$lifeExp)
+```
+
+This gives us some statistical information about life expectancy in world. Let's summarize it in the following table.
+
+Life Expectancy Statistics| #
+------------- | -------------
+Min   | 23
+Max  | 82 
+Average  | 59
+Median | 60
+
+A bar-plot might help to understand the distribution better. Let's try it!
+```{r}
+ggplot(data=gapData,aes(lifeExp))+
+geom_bar(binwidth=.75, fill="bisque4", colour="darkgreen")+
+xlab("Life Expentency")+
+ylab("Number of Observations")+ggtitle("Number of Observations for a Given Life Expentency")
+
+```
+
+            
+I changed the default width of bars to make the plot more beautiful and informative about the fluctuation via adding "**geom_bar(binwidth=.75)**" . I changed the color of bars as well by adding "**geom_bar(binwidth=.75, fill="bisque4", colour="darkgreen")**".
+
+Let's look at the life expectancy for each continent. We start by plotting the same plot for each continent.
+
+```{r}
+ggplot(data=gapData,aes(lifeExp))+
+geom_bar(binwidth=.75,fill="bisque4", colour="darkgreen")+
+facet_wrap(~ continent)+
+xlab("Life Expentency")+
+ylab("Number of Observations")+ggtitle("Number of Observations for a Given Life Expentency")
+
+```
+
+We added "**facet_wrap(~ continent)**" to have different plots for each continent.
+
+We could have different colors for each continent by adding "**fill=continent**" inside "**aes()**".
+
+```{r}
+ggplot(data=gapData,aes(lifeExp,fill=continent))+
+geom_bar(binwidth=.75, colour="darkgreen")+
+facet_wrap(~ continent)+
+xlab("Life Expentency")+
+ylab("Number of Observations")+
+ggtitle("Number of Observations for a Given Life Expentency")
+
+```
+
+We could plot all of the plots in the same plot with different colors for each continent. We should add the command "**fill=continent**" in "**aes()**" section to accomplish that.
+
+```{r}
+ggplot(data=gapData,aes(lifeExp,fill=continent))+
+geom_bar(binwidth=.75, colour="darkgreen")+
+xlab("Life Expentency")+
+ylab("Number of Observations")+
+ggtitle("Number of Observations for a Given Life Expentency")
+
+```
+
+
+Let's find the mean life expectancy for each continent. We use the package "**dplyr**" to sort the data and then find the statistical properties of the data.
+
+```{r}
+group_continent <- group_by(gapData,continent)
+arrange_continent <- arrange(gapData,continent)
+
+gapData_continent <- summarise(group_continent,lifeExp_median=median(lifeExp),lifeExp_mean=mean(lifeExp))
+
+
+```
+
+We made "**gapData_continent**" which has the "**mean**" and "**median**" value of life expectancy for each continent.
+
+Let's make a plot of the statistical information we found.
+
+```{r Life Expentency Median Continents }
+ggplot(data=gapData_continent,aes(y=gapData_continent$lifeExp_median,x=gapData_continent$continent))+
+geom_bar(stat="identity",fill="bisque4")+
+xlab("Continent")+
+ylab("Life Expentency")+
+ggtitle("Median Life Expentency")
+
+```
+
+```{r, Life Expentency Mean Continents }
+ggplot(data=gapData_continent,aes(y=gapData_continent$lifeExp_mean,x=gapData_continent$continent))+
+geom_bar(stat="identity",fill="bisque4")+
+xlab("Continent")+ylab("Life Expentency")+
+ggtitle("Average Life Expentency")
+
+```
+
+***
+
+We could use scatter plots to have a feeling about the statistical distribution of data for each continent as well.
+
+
+```{r Overplotting,Average Life Expentency Scatter Plot}
+ggplot(aes(x=continent,y=lifeExp),data=gapData)+
+geom_point(alpha=1/12)+
+xlab("Continent")+
+ylab("Life Expentency")+ggtitle("Average Life Expentency")
+
+```
+
+The option "**alpha=1/12**" was used to make the plot less dense. We can add a box that covers the statistical features of data we are interested in. Lets show mean, first and third Quantile on the plot.
+
+```{r Overplotting,Average Life Expentency Scatter Plot with BoxPlot}
+ggplot(aes(x=continent,y=lifeExp,fill=continent),data=gapData)+
+geom_point(alpha=1/12)+xlab("Continent")+ylab("Life Expentency")+
+ggtitle("Average Life Expentency")+geom_boxplot(alpha=.8)+guides(fill=FALSE)
+
+```
+
+The extra layer "**guides(fill=FALSE)**" removes the redundant legend.The "**alpha=.8**" option makes the box-plot transparent.
+
+#Reflection on Homework
+
+* The homework took me longer than I thought it will take!
+* There were errors that I needed to be creative to get rid of them.
+
+<br><br> <br>
