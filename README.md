@@ -9,7 +9,7 @@ This is a repository made by **Hamid Omid** for course work of **[STAT 545](http
 
 I am in the last year of my PhD studying theoretical physics. My supervisor is **[Gordon Semenoff](https://en.wikipedia.org/wiki/Gordon_Walter_Semenoff)**. I am interested in Quantum Field Theories and their applications to Condensed Matter Systems. I have spent most of my recent years doing analytic calculations. I live in beautiful city of Vancouver. Here is a picture of our Campus at **UBC**:
 
-![alt tag](https://www.dropbox.com/s/sgt5xiaqrlmazj7/Irving.jpg)
+<img src="\Home_Work_1\UBC_Picture\Irving.jpg" alt="Drawing" align="middle" style="width: 900px;"/ >
 
 <br> <br>
 
